@@ -16,8 +16,8 @@ private:
 };
 
 
-template class Lottery<boost::container::set<uint64_t>>;
-template class Lottery<boost::container::flat_set<uint64_t>>;
+template class Lottery<boost::container::set<uint64_t>>; // Необходим для явной инстанциации двух шаблонов Lottery.
+template class Lottery<boost::container::flat_set<uint64_t>>; // иначе в единице трансляции, где написана реализация не будет известно, что нужна инстанциация в другой единице трансляции
 using LotterySet = Lottery<boost::container::set<uint64_t>>;
 using LotteryFlatSet = Lottery<boost::container::flat_set<uint64_t>>;
 }
