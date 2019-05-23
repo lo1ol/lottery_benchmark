@@ -1,6 +1,7 @@
-#include <vector> =
+#include <vector>
 #include <random>
 #include <utility>
+#include <algorithm>
 
 #include <benchmark/benchmark.h>
 
@@ -23,7 +24,10 @@ std::vector<uint64_t> GetRandomVector(const uint64_t cnt, const uint64_t seed)
 template <class LotteryImpl>
 void BM_Lottery(benchmark::State& state) {
     const uint64_t r = uint64_t(-1) / (2*(state.range(0) + 1));
-    LotteryImpl lot(GetRandomVector(state.range(0), 0), r);
+    std::vector<uint64_t> centers = GetRandomVector(state.range(0), 0);
+    std::sort(centers.begin(), centers.end()); // sort to boost filling of lot when it is implemented as FlatSet
+
+    LotteryImpl lot(centers, r);
     std::vector<uint64_t> points = GetRandomVector(1000, 1);
 
     for (auto _ : state) {
@@ -35,6 +39,6 @@ void BM_Lottery(benchmark::State& state) {
 }
 
 BENCHMARK_TEMPLATE(BM_Lottery, lottery::LotterySet)->Arg(1<<10)->Arg(1<<12)->Arg(1<<15)->Arg(1<<20)->Arg(1<<24);
-BENCHMARK_TEMPLATE(BM_Lottery, lottery::LotteryVector)->Arg(1<<10)->Arg(1<<12)->Arg(1<<15)->Arg(1<<20)->Arg(1<<24);
+BENCHMARK_TEMPLATE(BM_Lottery, lottery::LotteryFlatSet)->Arg(1<<10)->Arg(1<<12)->Arg(1<<15)->Arg(1<<20)->Arg(1<<24);
 
 BENCHMARK_MAIN();

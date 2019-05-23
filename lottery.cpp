@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <stdexcept>
 #include <iterator>
 
@@ -29,7 +28,8 @@ double GetWinAmount(const uint64_t dist, const uint64_t radius)
 
 }
 
-LotterySet::LotterySet(const std::vector<uint64_t>& centers, const uint64_t radius)
+template <typename Container>
+Lottery<Container>::Lottery(const std::vector<uint64_t>& centers, const uint64_t radius)
     : m_radius(radius)
 {
     if(centers.empty()) {
@@ -39,36 +39,11 @@ LotterySet::LotterySet(const std::vector<uint64_t>& centers, const uint64_t radi
     m_centers.insert(centers.begin(), centers.end());
 }
 
-double LotterySet::GetWinAmount(uint64_t point) const
+template <typename Container>
+double Lottery<Container>::GetWinAmount(uint64_t point) const
 {
-    const decltype(m_centers)::const_iterator& upper_bound = m_centers.lower_bound(point);
-    const decltype(m_centers)::const_iterator& lower_bound = upper_bound == m_centers.begin() ? upper_bound : std::prev(upper_bound);
-    uint64_t dist;
-
-    if (upper_bound == m_centers.end()) {
-        dist = GetDist(*upper_bound, point);
-    } else {
-        dist = std::min(GetDist(*lower_bound, point), GetDist(*upper_bound, point));
-    }
-
-    return lottery::GetWinAmount(dist, m_radius);
-}
-
-LotteryVector::LotteryVector(std::vector<uint64_t>&& centers, const uint64_t radius)
-    : m_radius(radius)
-{
-    if(centers.empty()) {
-        throw std::invalid_argument("Empty vetctor of centers!");
-    }
-
-    m_centers = std::move(centers);
-    std::sort(m_centers.begin(), m_centers.end());
-}
-
-double LotteryVector::GetWinAmount(uint64_t point) const
-{
-    const decltype(m_centers)::const_iterator& upper_bound = std::lower_bound(m_centers.begin(), m_centers.end(), point);
-    const decltype(m_centers)::const_iterator& lower_bound = upper_bound == m_centers.begin() ? upper_bound : std::prev(upper_bound);
+    const typename Container::const_iterator& upper_bound = m_centers.lower_bound(point);
+    const typename Container::const_iterator& lower_bound = upper_bound == m_centers.begin() ? upper_bound : std::prev(upper_bound);
     uint64_t dist;
 
     if (upper_bound == m_centers.end()) {
